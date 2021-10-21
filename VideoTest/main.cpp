@@ -6,18 +6,22 @@ using namespace std;
 
 Mat calcGrayHist(const Mat& img);
 Mat getGrayHistImage(const Mat& hist);
+
 void HistPlay();
 void histogram_stretching();
+void histogram_equalization();
 void camera_in();
 void video_in();
 void camera_in_video_out();
+
 
 int main(void)
 {
 	//HistPlay();
 	//histogram_stretching();
+	//video_in();
 
-	video_in();
+	histogram_equalization();
 
 	return 0;
 }
@@ -45,6 +49,31 @@ void histogram_stretching()
 	waitKey();
 	destroyAllWindows();
 
+}
+
+void histogram_equalization()
+{
+	Mat src = imread("hawkes.bmp", IMREAD_GRAYSCALE);
+
+	if (src.empty())
+	{
+		cerr << "Image load failed" << endl;
+		return;
+	}
+
+	Mat dst;
+
+	// OpenCV에서 제공하는 히스토그램 평활화 함수
+	equalizeHist(src, dst);
+
+	imshow("src", src);
+	imshow("srcHist", getGrayHistImage(calcGrayHist(src)));
+	
+	imshow("dst", dst);
+	imshow("dstHist", getGrayHistImage(calcGrayHist(dst)));
+
+	waitKey();
+	destroyAllWindows();
 }
 
 void HistPlay()
