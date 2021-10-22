@@ -33,39 +33,48 @@ void output();
 void affine_transform();
 void affine_translation();
 
+void affine_shear();
+void affine_scale();
+
+
 int main(void)
 {
-	//HistPlay();
-	//histogram_stretching();
-	//video_in();
+	//HistPlay();					// 히스토그램 실행
+	//histogram_stretching();		// 히스토그램 스트레칭
+	//video_in();					// 노트북 비디오 출력
 
-	//histogram_equalization();
+	//histogram_equalization();		// 히스토그램 평활화
 
 	//picAdd_2();
 
-	//picAddWeghited();
+	//picAddWeghited();	// 가중치 덧셈연산
 
 	//picSub();
 
 	//picDiff();
-	//picLogical();
+	//picLogical();	// 논리적 연산
 
 	//filter_embossing();
 
-	//blurring_mean();
-	//blurring_gaussian();
+	//blurring_mean();		// 평균값 블러링
+	//blurring_gaussian();	// 가우시안 블러링
 
 
-	//unsharped_mask();
+	//unsharped_mask(); // 언샤프 마스크
 
-	//filter_bilateral();
+	//filter_bilateral();	//양방향 필터
 
-	//filter_median();
+	//filter_median(); // 미디언 필터(중간값 필터)
 
-	//output();
+	//output();	// 출력 확인
 
 	//affine_transform(); // 어파인 변환 = 평행이동시키거나 회전, 크기 변환 등을 통해 만들 수 있는 변환을 통칭
-	affine_translation();
+	//affine_translation(); // 이동 변환
+
+	//affine_shear(); // 전단 변환
+
+	affine_scale();		// 크기 변환
+
 	return 0;
 }
 
@@ -357,6 +366,43 @@ void affine_translation()
 	waitKey();
 
 
+}
+
+void affine_shear()
+{
+	Mat pic = imread("IU2.bmp");
+
+	double mx = 0.3;
+	Mat M = Mat_<double>({ 2,3 }, { 1,mx,0,0,1,0 });
+
+	Mat dst;
+	warpAffine(pic, dst, M, Size(cvRound(pic.cols + pic.rows * mx), pic.rows));
+
+	imshow("pic", pic);
+	imshow("dst", dst);
+
+	waitKey();
+	destroyAllWindows();
+}
+
+void affine_scale()
+{
+	Mat pic = imread("lenna_Color.bmp");
+
+	Mat dst1, dst2, dst3, dst4;
+
+	resize(pic, dst1, Size(), 4, 4, INTER_NEAREST);
+	resize(pic, dst2, Size(1920, 1280));
+	resize(pic, dst3, Size(1920, 1280),0,0,INTER_CUBIC);
+	resize(pic, dst4, Size(1920, 1280),0,0,INTER_LANCZOS4);
+
+	imshow("pic", pic);
+	imshow("dst1", dst1(Rect(800,500,400,400)));
+	imshow("dst2", dst2(Rect(800, 500, 400, 400)));
+	imshow("dst3", dst3(Rect(800, 500, 400, 400)));
+	imshow("dst4", dst4(Rect(800, 500, 400, 400)));
+
+	waitKey();
 }
 
 
