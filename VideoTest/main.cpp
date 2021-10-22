@@ -16,6 +16,10 @@ void camera_in_video_out();
 void picAdd();
 void picAdd_2();
 void picAddWeghited();
+void picSub();
+void picDiff();
+void picLogical();
+
 
 int main(void)
 {
@@ -27,7 +31,12 @@ int main(void)
 
 	//picAdd_2();
 
-	picAddWeghited();
+	//picAddWeghited();
+
+	//picSub();
+
+	//picDiff();
+	picLogical();
 
 	return 0;
 }
@@ -59,6 +68,8 @@ void picAdd_2()
 	waitKey();
 }
 
+
+// 평균연산 addWeighted()함수 사용하여서 가중치를 설정하고 포화되는 픽셀이 없도록 연산
 void picAddWeghited()
 {
 	Mat cam = imread("camera.bmp", IMREAD_GRAYSCALE);
@@ -70,6 +81,57 @@ void picAddWeghited()
 
 	imshow("덧셈 결과", def);
 	waitKey();
+}
+
+void picSub()
+{
+
+	Mat pic1 = imread("lenna.bmp", IMREAD_GRAYSCALE);
+	Mat pic2 = imread("hole2.bmp", IMREAD_GRAYSCALE);
+
+	Mat def1;
+	Mat def2;
+
+	subtract(pic1, pic2, def1);
+	subtract(pic2, pic1, def2);
+	imshow("뺄셈 결과1", def1);
+	imshow("뺄셈 결과2", def2);
+
+	waitKey();
+}
+
+void picDiff()
+{
+	Mat pic1 = imread("lenna.bmp", IMREAD_GRAYSCALE);
+	Mat pic2 = imread("square.bmp", IMREAD_GRAYSCALE);
+
+	Mat def;
+	
+	absdiff(pic1, pic2, def);
+	imshow("결과", def);
+	waitKey();
+
+}
+
+void picLogical()
+{
+	Mat pic1 = imread("lenna.bmp", IMREAD_GRAYSCALE);
+	Mat pic2 = imread("square.bmp", IMREAD_GRAYSCALE);
+
+	Mat def1,def2,def3,def4;
+
+	bitwise_and(pic1, pic2, def1);
+	bitwise_or(pic1, pic2, def2);
+	bitwise_xor(pic1, pic2, def3);
+	bitwise_not(pic1,  def4);
+
+	imshow("def1", def1);
+	imshow("def2", def2);
+	imshow("def3", def3);
+	imshow("def4", def4);
+
+	waitKey();
+
 }
 
 
