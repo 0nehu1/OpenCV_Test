@@ -13,7 +13,9 @@ void histogram_equalization();
 void camera_in();
 void video_in();
 void camera_in_video_out();
-
+void picAdd();
+void picAdd_2();
+void picAddWeghited();
 
 int main(void)
 {
@@ -21,10 +23,55 @@ int main(void)
 	//histogram_stretching();
 	//video_in();
 
-	histogram_equalization();
+	//histogram_equalization();
+
+	//picAdd_2();
+
+	picAddWeghited();
 
 	return 0;
 }
+
+// ¿µ»óÀÇ µ¡¼À¿¬»ê add()ÇÔ¼ö»ç¿ë
+void picAdd()
+{
+	Mat cam = imread("camera.bmp", IMREAD_GRAYSCALE);
+	Mat aer = imread("aero2.bmp", IMREAD_GRAYSCALE);
+
+	Mat def;
+	add(cam, aer, def);
+
+	imshow("µ¡¼À °á°ú", def);
+	waitKey();
+}
+
+
+// ¿µ»óÀÇ µ¡¼À¿¬»ê2
+void picAdd_2()
+{
+	Mat cam = imread("camera.bmp", IMREAD_GRAYSCALE);
+	Mat aer = imread("aero2.bmp", IMREAD_GRAYSCALE);
+
+	Mat def;
+	def = cam + aer;
+
+	imshow("µ¡¼À °á°ú", def);
+	waitKey();
+}
+
+void picAddWeghited()
+{
+	Mat cam = imread("camera.bmp", IMREAD_GRAYSCALE);
+	Mat aer = imread("aero2.bmp", IMREAD_GRAYSCALE);
+
+	Mat def;
+
+	addWeighted(cam, 0.5, aer, 0.5,0, def);
+
+	imshow("µ¡¼À °á°ú", def);
+	waitKey();
+}
+
 
 void histogram_stretching()
 {
