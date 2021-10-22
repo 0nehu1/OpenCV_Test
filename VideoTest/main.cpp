@@ -20,6 +20,14 @@ void picSub();
 void picDiff();
 void picLogical();
 
+void filter_embossing();
+
+void blurring_mean();
+void blurring_gaussian();
+
+void unsharped_mask();
+void filter_bilateral();
+void filter_median();
 
 int main(void)
 {
@@ -36,7 +44,19 @@ int main(void)
 	//picSub();
 
 	//picDiff();
-	picLogical();
+	//picLogical();
+
+	//filter_embossing();
+
+	//blurring_mean();
+	//blurring_gaussian();
+
+
+	//unsharped_mask();
+
+	//filter_bilateral();
+
+	filter_median();
 
 	return 0;
 }
@@ -132,6 +152,149 @@ void picLogical()
 
 	waitKey();
 
+}
+
+void filter_embossing()
+{
+	Mat pic = imread("lenna.bmp", IMREAD_GRAYSCALE);
+
+	float data1[] = { -1,-1,0,-1,0,1,0,1,1 };
+	Mat emboss1(3, 3, CV_32FC1, data1);
+
+	float data2[] = { -2,-2,0,-2,0,2,0,2,2 };
+	Mat emboss2(3, 3, CV_32FC1, data2);
+
+	Mat dst1,dst2;
+	filter2D(pic, dst1, -1, emboss1, Point(-1, -1), 128);
+	filter2D(pic, dst2, -1, emboss2, Point(-1, -1), 128);
+
+	imshow("dst1", dst1);
+	imshow("dst2", dst2);
+
+	waitKey();
+}
+
+void blurring_mean()
+{
+	Mat pic = imread("rose.bmp", IMREAD_GRAYSCALE);
+
+	imshow("pic", pic);
+
+	Mat dst;
+	for (int ksize = 3; ksize <= 10; ksize++) {
+		blur(pic, dst, Size(ksize, ksize));
+
+		String desc = format("Mean: %d x %d", ksize, ksize);
+		putText(dst, desc, Point(10, 30), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255), 1, LINE_AA);
+
+		imshow("dst", dst);
+		waitKey();
+	}
+	destroyAllWindows();
+}
+
+void blurring_gaussian()
+{
+	Mat pic = imread("rose.bmp", IMREAD_GRAYSCALE);
+	
+	imshow("pic", pic);
+
+	Mat def;
+	for (int sigma = 1; sigma <= 20; sigma++)
+	{
+		GaussianBlur(pic, def, Size(), (double)sigma);
+
+		String text = format("sigma = %d", sigma);
+		putText(def, text, Point(10, 30), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255),1, LINE_AA);
+
+		imshow("def", def);
+		waitKey();
+	}
+	destroyAllWindows();
+}
+
+void unsharped_mask()
+{
+	Mat pic = imread("rose.bmp", IMREAD_GRAYSCALE);
+
+	imshow("pic", pic);
+
+	for (int sigma = 1; sigma <= 5; sigma++)
+	{
+		Mat blurred;
+		GaussianBlur(pic, blurred, Size(), sigma);
+
+		float alpha = 1.f;
+		Mat dst = (1 + alpha) * pic - alpha * blurred;
+
+		String desc = format("sigma: %d", sigma);
+		putText(dst, desc, Point(10, 30), FONT_HERSHEY_PLAIN, 1.0,
+			Scalar(255), 1, LINE_AA);
+		
+		imshow("blurred", blurred);
+		imshow("dst", dst);
+		waitKey();
+	}
+	destroyAllWindows();
+}
+
+void filter_bilateral()
+{
+	Mat pic = imread("lenna.bmp", IMREAD_GRAYSCALE);
+
+	if (pic.empty())
+	{
+		cerr << "Image load failed!" << endl;
+		return;
+	}
+
+	Mat noise(pic.size(), CV_32SC1);
+	randn(noise, 0, 5);
+	add(pic, noise, pic, Mat(), CV_8U);
+
+	Mat dst1;
+	GaussianBlur(pic, dst1, Size(), 5);
+
+	Mat dst2;
+	bilateralFilter(pic, dst2, -1, 10, 5);
+
+	imshow("pic",pic);
+	imshow("dst1", dst1);
+	imshow("dst2", dst2);
+
+	waitKey();
+	
+}
+
+void filter_median()
+{
+	Mat pic = imread("lenna_Color.bmp", IMREAD_GRAYSCALE);
+
+	
+
+	int num = (int)(pic.total() * 0.1);
+	for (int i = 0; i < num; i++)
+	{
+		int x = rand() % pic.cols;
+		int y = rand() % pic.rows;
+		pic.at<uchar>(y, x) = (i % 2) * 255;
+	}
+	imshow("소금&후추 잡음", pic);
+	Mat dst1;
+	GaussianBlur(pic, dst1, Size(), 1);
+
+	Mat dst2;
+	medianBlur(pic, dst2, 3);
+
+	Mat dst3;
+	medianBlur(dst1, dst3, 3);
+
+	imshow("가우시안", dst1);
+	imshow("미디언", dst2);
+	imshow("가우시안->미디언", dst3);
+
+
+	waitKey();
 }
 
 
