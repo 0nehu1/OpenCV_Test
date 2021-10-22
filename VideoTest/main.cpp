@@ -29,6 +29,10 @@ void unsharped_mask();
 void filter_bilateral();
 void filter_median();
 
+void output();
+void affine_transform();
+void affine_translation();
+
 int main(void)
 {
 	//HistPlay();
@@ -56,8 +60,12 @@ int main(void)
 
 	//filter_bilateral();
 
-	filter_median();
+	//filter_median();
 
+	//output();
+
+	//affine_transform(); // 어파인 변환 = 평행이동시키거나 회전, 크기 변환 등을 통해 만들 수 있는 변환을 통칭
+	affine_translation();
 	return 0;
 }
 
@@ -174,14 +182,15 @@ void filter_embossing()
 	waitKey();
 }
 
+//평균값 블러링
 void blurring_mean()
 {
-	Mat pic = imread("rose.bmp", IMREAD_GRAYSCALE);
+	Mat pic = imread("IU2.bmp", IMREAD_GRAYSCALE);
 
 	imshow("pic", pic);
 
 	Mat dst;
-	for (int ksize = 3; ksize <= 10; ksize++) {
+	for (int ksize = 3; ksize <= 30; ksize++) {
 		blur(pic, dst, Size(ksize, ksize));
 
 		String desc = format("Mean: %d x %d", ksize, ksize);
@@ -215,11 +224,11 @@ void blurring_gaussian()
 
 void unsharped_mask()
 {
-	Mat pic = imread("rose.bmp", IMREAD_GRAYSCALE);
+	Mat pic = imread("sa.bmp", IMREAD_COLOR);
 
 	imshow("pic", pic);
 
-	for (int sigma = 1; sigma <= 5; sigma++)
+	for (int sigma = 1; sigma <= 20; sigma++)
 	{
 		Mat blurred;
 		GaussianBlur(pic, blurred, Size(), sigma);
@@ -240,7 +249,7 @@ void unsharped_mask()
 
 void filter_bilateral()
 {
-	Mat pic = imread("lenna.bmp", IMREAD_GRAYSCALE);
+	Mat pic = imread("IU2.bmp", IMREAD_GRAYSCALE);
 
 	if (pic.empty())
 	{
@@ -268,11 +277,12 @@ void filter_bilateral()
 
 void filter_median()
 {
-	Mat pic = imread("lenna_Color.bmp", IMREAD_GRAYSCALE);
+	Mat pic = imread("IU2.bmp", IMREAD_COLOR);
 
 	
 
 	int num = (int)(pic.total() * 0.1);
+	// 소금&후추 잡음 설정
 	for (int i = 0; i < num; i++)
 	{
 		int x = rand() % pic.cols;
@@ -283,9 +293,11 @@ void filter_median()
 	Mat dst1;
 	GaussianBlur(pic, dst1, Size(), 1);
 
+	// 가우시안 필터 사용으로 잡음 제거 시도
 	Mat dst2;
 	medianBlur(pic, dst2, 3);
 
+	// 미디언 필터 사용으로 잡음 제거 시도
 	Mat dst3;
 	medianBlur(dst1, dst3, 3);
 
@@ -295,6 +307,56 @@ void filter_median()
 
 
 	waitKey();
+}
+
+void output()
+{
+	Mat pic = imread("sa.bmp", IMREAD_GRAYSCALE);
+
+	imshow("IU", pic);
+
+	waitKey();
+}
+
+void affine_transform()
+{
+	Mat pic = imread("sa.bmp");
+
+	Point2f picPts[3], dstPts[3];
+	picPts[0] = Point2f(0, 0);
+	picPts[1] = Point2f(pic.cols - 1, 0);
+	picPts[2] = Point2f(pic.cols - 1, pic.rows - 1);
+	dstPts[0] = Point2f(50, 50);
+	dstPts[1] = Point2f(pic.cols - 100, 100);
+	dstPts[2] = Point2f(pic.cols - 50, pic.rows - 50);
+
+	Mat M = getAffineTransform(picPts, dstPts);
+
+	Mat dst;
+	warpAffine(pic, dst, M, Size());
+
+	imshow("pic", pic);
+	imshow("dst", dst);
+
+	waitKey();
+	destroyAllWindows();
+}
+
+void affine_translation()
+{
+	Mat pic = imread("IU2.bmp");
+
+	Mat M = Mat_<double>({ 2,3 }, {1,0,150,0,1,100});
+
+	Mat dst;
+	warpAffine(pic, dst, M, Size());
+
+	imshow("pic", pic);
+	imshow("dst", dst);
+
+	waitKey();
+
+
 }
 
 
