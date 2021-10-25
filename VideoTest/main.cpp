@@ -36,6 +36,8 @@ void affine_translation();
 void affine_shear();
 void affine_scale();
 
+void sobel_edge();
+void canny_edge();
 
 int main(void)
 {
@@ -73,7 +75,11 @@ int main(void)
 
 	//affine_shear(); // 전단 변환
 
-	affine_scale();		// 크기 변환
+	//affine_scale();		// 크기 변환
+
+	//sobel_edge();		// 소벨 마스크 기반 엣지 검출
+	canny_edge();		// 캐니 엣지 검출
+
 
 	return 0;
 }
@@ -403,6 +409,47 @@ void affine_scale()
 	imshow("dst4", dst4(Rect(800, 500, 400, 400)));
 
 	waitKey();
+}
+
+void sobel_edge()
+{
+	Mat pic = imread("IU.bmp", IMREAD_GRAYSCALE);
+
+	Mat dx, dy;
+	Sobel(pic, dx, CV_32FC1, 1, 0);
+	Sobel(pic, dy, CV_32FC1, 0, 1);
+
+	Mat fmag, mag;
+	magnitude(dx, dy, fmag);
+	fmag.convertTo(mag, CV_8UC1);
+
+	Mat edge = mag >= 150;
+
+	imshow("pic", pic);
+	imshow("mag", mag);
+	imshow("edge", edge);
+
+	imwrite("C:/Users/하이비젼/source/repos/VideoTest/VideoTest/mag.bmp", mag);
+	imwrite("C:/Users/하이비젼/source/repos/VideoTest/VideoTest/sobeledge.bmp", edge);
+
+	waitKey();
+	destroyAllWindows();
+}
+
+void canny_edge()
+{
+	Mat pic = imread("lenna_Color.bmp", IMREAD_GRAYSCALE);
+	
+	Mat dst1, dst2;
+	Canny(pic, dst1, 50, 100);
+	Canny(pic, dst2, 50, 150);
+
+	imshow("pic", pic);
+	imshow("dst1",dst1);
+	imshow("dst2", dst2);
+
+	waitKey();
+	destroyAllWindows();
 }
 
 
