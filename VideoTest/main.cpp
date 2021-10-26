@@ -39,6 +39,8 @@ void affine_scale();
 void sobel_edge();
 void canny_edge();
 
+void hough_circles();
+
 int main(void)
 {
 	//HistPlay();					// 히스토그램 실행
@@ -78,8 +80,9 @@ int main(void)
 	//affine_scale();		// 크기 변환
 
 	//sobel_edge();		// 소벨 마스크 기반 엣지 검출
-	canny_edge();		// 캐니 엣지 검출
-
+	//canny_edge();		// 캐니 엣지 검출
+	
+	hough_circles();	// 허프 원 검출
 
 	return 0;
 }
@@ -96,7 +99,6 @@ void picAdd()
 	imshow("덧셈 결과", def);
 	waitKey();
 }
-
 
 // 영상의 덧셈연산2
 void picAdd_2()
@@ -447,6 +449,32 @@ void canny_edge()
 	imshow("pic", pic);
 	imshow("dst1",dst1);
 	imshow("dst2", dst2);
+
+	waitKey();
+	destroyAllWindows();
+}
+
+void hough_circles()
+{
+	Mat pic = imread("coins.png", IMREAD_GRAYSCALE);
+
+	Mat blurred;
+	blur(pic, blurred, Size(3, 3));
+
+	vector<Vec3f> circles;
+	HoughCircles(blurred, circles, HOUGH_GRADIENT, 1, 50, 150, 30);
+	
+	Mat dst;
+	cvtColor(pic, dst, COLOR_GRAY2BGR);
+	
+	for (Vec3f c : circles) {
+		Point center(cvRound(c[0]), cvRound(c[1]));
+		int radius = cvRound(c[2]);
+		circle(dst, center, radius, Scalar(0, 0, 255), 2, LINE_AA);
+	}
+
+	imshow("pic", pic);
+	imshow("dst", dst);
 
 	waitKey();
 	destroyAllWindows();
