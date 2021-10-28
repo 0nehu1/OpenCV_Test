@@ -39,7 +39,11 @@ void affine_scale();
 void sobel_edge();
 void canny_edge();
 
+void hough_line();
+void hough_line_segments();
 void hough_circles();
+
+void color_inverse();
 
 int main(void)
 {
@@ -82,7 +86,9 @@ int main(void)
 	//sobel_edge();		// 소벨 마스크 기반 엣지 검출
 	//canny_edge();		// 캐니 엣지 검출
 	
-	hough_circles();	// 허프 원 검출
+	//hough_line();		// 허프 라인 검출
+	hough_line_segments(); // 확률적 허프 변환 선분 검출
+	//hough_circles();	// 허프 원 검출
 
 	return 0;
 }
@@ -454,6 +460,59 @@ void canny_edge()
 	destroyAllWindows();
 }
 
+void hough_line()
+{
+	Mat pic = imread("aero2.bmp", IMREAD_GRAYSCALE);
+
+	Mat edge;
+	Canny(pic, edge, 50, 50);
+
+	vector<Vec2f> lines;
+	HoughLines(edge, lines, 1, CV_PI / 180, 250);
+	
+	Mat dst;
+	cvtColor(edge, dst, COLOR_GRAY2BGR);
+	
+	for (size_t i = 0; i < lines.size(); i++) {
+		float r = lines[i][0], t = lines[i][1];
+		double cos_t = cos(t), sin_t = sin(t);
+		double x0 = r * cos_t, y0 = r * sin_t;
+		double alpha = 1000;
+
+		Point pt1(cvRound(x0 + alpha * (-sin_t)), cvRound(y0 + alpha * cos_t));
+		Point pt2(cvRound(x0 - alpha * (-sin_t)), cvRound(y0 - alpha * cos_t));
+		line(dst, pt1, pt2, Scalar(0, 0, 255), 2, LINE_AA);
+	}
+	imshow("pic", pic);
+	imshow("dst", dst);
+
+	waitKey();
+	destroyAllWindows();
+
+}
+
+void hough_line_segments()
+{
+	Mat pic = imread("building.jpg", IMREAD_GRAYSCALE);
+
+	Mat edge;
+	Canny(pic, edge, 50, 150);
+
+	vector<Vec4i> lines;
+	HoughLinesP(edge, lines, 1, CV_PI / 180, 160, 50, 5);
+
+	Mat dst;
+	cvtColor(edge, dst, COLOR_GRAY2BGR);
+
+	for (Vec4i l : lines) {
+		line(dst, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255),2,LINE_AA);
+	}
+	imshow("pic", pic);
+	imshow("dst", dst);
+	waitKey();
+	destroyAllWindows();
+}
+
 void hough_circles()
 {
 	Mat pic = imread("coins.png", IMREAD_GRAYSCALE);
@@ -480,6 +539,19 @@ void hough_circles()
 	destroyAllWindows();
 }
 
+void color_inverse()
+{
+	Mat pic = imread("butterfly.jpg", IMREAD_COLOR);
+
+	Mat dst(pic.rows, pic.cols, pic.type());
+
+	for (int j = 0; j < pic.cols; j++) {
+		for (int i = 0; i < pic.rows; i++) {
+
+		}
+	}
+}
+
 
 void histogram_stretching()
 {
@@ -503,7 +575,6 @@ void histogram_stretching()
 
 	waitKey();
 	destroyAllWindows();
-
 }
 
 void histogram_equalization()
